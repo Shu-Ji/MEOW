@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/cyfdecyf/bufio"
+	"github.com/wjchen/MEOW/publicsuffix"
 )
 
 const isWindows = runtime.GOOS == "windows"
@@ -353,18 +354,13 @@ func host2Domain(host string) (domain string) {
 	if isIP {
 		return host
 	}
-	host = trimLastDot(host)
-	lastDot := strings.LastIndex(host, ".")
-	if lastDot == -1 {
+
+	host, err := publicsuffix.EffectiveTLDPlusOne(host)
+	if err != nil {
 		return ""
-	}
-	// Find the 2nd last dot
-	dot2ndLast := strings.LastIndex(host[:lastDot], ".")
-	if dot2ndLast == -1 {
+	} else {
 		return host
 	}
-
-	return host[dot2ndLast+1:]
 }
 
 // IgnoreUTF8BOM consumes UTF-8 encoded BOM character if present in the file.
